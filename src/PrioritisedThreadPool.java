@@ -1,4 +1,3 @@
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -8,12 +7,6 @@ public class PrioritisedThreadPool {
     private final ThreadPoolExecutor highThreadPool;
     private final ThreadPoolExecutor mediumThreadPool;
     private final ThreadPoolExecutor lowThreadPool;
-
-    public enum Priority {
-        HIGH,
-        MEDIUM,
-        LOW
-    }
 
     public PrioritisedThreadPool() {
         PriorityLinkedBlockingQueue<Runnable> highQueue = new PriorityLinkedBlockingQueue<>();
@@ -41,6 +34,12 @@ public class PrioritisedThreadPool {
                 lowThreadPool.execute(command);
                 break;
         }
+    }
+
+    public enum Priority {
+        HIGH,
+        MEDIUM,
+        LOW
     }
 
     private class ThreadFactory implements java.util.concurrent.ThreadFactory {
