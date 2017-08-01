@@ -91,15 +91,18 @@ public class PriorityLinkedBlockingQueue<I> extends LinkedBlockingQueue<I> {
 
     @Override
     public I take() throws InterruptedException {
-        I x;
+        I x = null;
         final ReentrantLock takeLock = this.takeLock;
         takeLock.lockInterruptibly();
         try {
             if (parentQueue != null) {
-                while (sizeIncludingParents() == 0) {
-                    this.notEmpty.await();
+                while (x == null) {
+                    while (sizeIncludingParents() == 0) {
+                        this.notEmpty.await();
+                    }
+                    x = poll();
                 }
-                x = poll();
+
                 if (sizeIncludingParents() != 0) {
                     this.signalNotEmpty();
                 }
@@ -114,11 +117,12 @@ public class PriorityLinkedBlockingQueue<I> extends LinkedBlockingQueue<I> {
 
     @Override
     public int drainTo(Collection<? super I> c) {
+        int transferred = 0;
         if (parentQueue != null) {
-            parentQueue.drainTo(c);
+            transferred += parentQueue.drainTo(c);
         }
-        super.drainTo(c);
-        return c.size();
+        transferred += super.drainTo(c);
+        return transferred;
     }
 
     @Override
